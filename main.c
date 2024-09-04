@@ -2,7 +2,16 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <time.h>
-#include <windows.h>
+
+#ifdef _WIN32
+    #include <windows.h>
+    #define msleep(x) Sleep(x)
+    #define screen_clear() system("cls")
+#else
+    #include <unistd.h>
+    #define screen_clear() system("clear")
+    #define msleep(x) usleep(x * 1000)
+#endif
 
 void print_field(int ballX, int ballY, int first_racket, int second_racket, int first_player_point, int second_player_point);
 void move_ball(int* ballX, int* ballY, int* direction);
@@ -22,12 +31,12 @@ int main() {
     int direction = 2;
 
     while (first_player_point < 5 && second_player_point < 5) {
-        system("cls");
+        screen_clear();
         print_field(ballX, ballY, first_racket, second_racket, first_player_point, second_player_point);
         move_racket(&first_racket, &second_racket);
         move_ball(&ballX, &ballY, &direction);
         check_ball(&ballX, &ballY, first_racket, second_racket, &first_player_point, &second_player_point, &direction);
-        Sleep(50);
+        msleep(50);
     }
     print_field(-1, -1, first_racket, second_racket, first_player_point, second_player_point);
     if (first_player_point == 1) {
@@ -118,8 +127,8 @@ void check_ball(int* ballX, int* ballY, int first_racket, int second_racket, int
 }
 
 void move_racket(int* first_racket, int* second_racket) {
-    if (_kbhit()) {
-        switch(_getch()) {
+    if (kbhit()) {
+        switch(getch()) {
             case 'a':
                 if (*first_racket - 1 > 1) {
                     (*first_racket)--;
@@ -141,7 +150,7 @@ void move_racket(int* first_racket, int* second_racket) {
                 }
                 break;
             case 'q':
-                system("cls");
+                screen_clear();
                 print_field(-1, -1, *first_racket, *second_racket, 0, 0);
                 printf("Game over");
                 exit(0);
